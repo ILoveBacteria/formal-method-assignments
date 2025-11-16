@@ -48,12 +48,36 @@ active proctype coordinator() {
     do 
     :: slot_signal ? slot;
         printf("[coordinator] Received slot = %d\n", slot);
-    :: slot == 0 -> grant_ground1 ! 1; printf("[coordinator] Grant to ground1\n");
-    :: slot == 1 -> grant_ground2 ! 1; printf("[coordinator] Grant to ground2\n");
-    :: slot == 2 -> grant_ground3 ! 1; printf("[coordinator] Grant to ground3\n");
-    :: slot == 4 -> grant_isl12 ! 1; printf("[coordinator] Grant to isl12\n");
-    :: slot == 5 -> grant_isl23 ! 1; printf("[coordinator] Grant to isl23\n");
-    :: slot == 6 -> grant_isl13 ! 1; printf("[coordinator] Grant to isl13\n");
+    :: slot == 0 ->
+        if
+        :: grant_ground1 ! 1 -> printf("[coordinator] Grant to ground1\n")
+        :: true -> skip
+        fi
+    :: slot == 1 ->
+        if
+        :: grant_ground2 ! 1 -> printf("[coordinator] Grant to ground2\n")
+        :: true -> skip
+        fi
+    :: slot == 2 ->
+        if
+        :: grant_ground3 ! 1 -> printf("[coordinator] Grant to ground3\n")
+        :: true -> skip
+        fi
+    :: slot == 4 ->
+        if
+        :: grant_isl12 ! 1 -> printf("[coordinator] Grant to isl12\n")
+        :: true -> skip
+        fi
+    :: slot == 5 ->
+        if
+        :: grant_isl23 ! 1 -> printf("[coordinator] Grant to isl23\n")
+        :: true -> skip
+        fi
+    :: slot == 6 ->
+        if
+        :: grant_isl13 ! 1 -> printf("[coordinator] Grant to isl13\n")
+        :: true -> skip
+        fi
     od 
 }
 
