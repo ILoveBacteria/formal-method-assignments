@@ -302,16 +302,20 @@ init {
     Message sample1;
     sample1.type = TELEMETRY;
     sample1.src = 1;
-    sample1.dest = 0;
+    sample1.dest = 2;
     sample1.payload = 0;
     satellite1_buffer ! sample1
-    //
+    // drop scenario
     Message sample2;
     sample2.type = TELEMETRY;
     sample2.src = 2;
     sample2.dest = 3;
     sample2.payload = 0;
-    satellite2_buffer ! sample2
+    satellite2_buffer ! sample2;
+    satellite2_buffer ! sample2;
+    satellite2_buffer ! sample2;
+    satellite2_buffer ! sample2;
+    satellite2_buffer ! sample2;
     // run processes
     run timeKeeper();
     run coordinator();
