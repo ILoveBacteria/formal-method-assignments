@@ -131,7 +131,7 @@ proctype timer(byte id) {
 }
 
 proctype satellite1(chan buffer) {
-    byte battery = 100;
+    byte battery = 1;
     bool safe_mode = false;
     Message msg;
     Message ack;
@@ -141,8 +141,12 @@ proctype satellite1(chan buffer) {
     run timer(0);
     do
     // charge battery
-    :: len(slot_changed1) > 0 -> slot_changed1 ? _; battery = (battery + 8) % 100; printf("[satellite1] Battery=%d", battery); if
-        :: battery > 20 -> safe_mode = false; printf("[satellite1] Safe mode off");
+    :: len(slot_changed1) > 0 -> slot_changed1 ? _; if
+        :: battery + 8 >= 100 -> battery = 100;
+        :: else -> battery = battery + 8;
+        fi; 
+        printf("[satellite1] Battery=%d\n", battery); if
+        :: battery > 20 -> safe_mode = false; printf("[satellite1] Safe mode off\n");
         :: else -> skip;
         fi
     // Receive or send message (idle)
@@ -162,6 +166,7 @@ proctype satellite1(chan buffer) {
             :: true -> skip;
             fi
         :: battery >= 10 && len(buffer) > 0 -> buffer ? msg; printf("[satellite1] Buffer pop: type=%d, src=%d, dest=%d, payload=%d\n", msg.type, msg.src, msg.dest, msg.payload); state = 3;
+        :: else -> skip;
         fi
     // send ack to satellite 2
     :: state == 1 && len(grant_isl12) > 0 ->
@@ -199,7 +204,7 @@ proctype satellite1(chan buffer) {
         fi
     // battery check
     :: state == 8 -> if
-        :: battery < 10 -> safe_mode = true; printf("[satellite1] Safe mode on");
+        :: battery < 10 -> safe_mode = true; printf("[satellite1] Safe mode on\n");
         :: else -> skip
         fi
     od
@@ -328,8 +333,12 @@ init {
     Message sample1;
     sample1.type = TELEMETRY;
     sample1.src = 1;
-    sample1.dest = 2;
+    sample1.dest = 0;
     sample1.payload = 0;
+    satellite1_buffer ! sample1
+    satellite1_buffer ! sample1
+    satellite1_buffer ! sample1
+    satellite1_buffer ! sample1
     satellite1_buffer ! sample1
     // drop scenario
     Message sample2;
@@ -346,7 +355,7 @@ init {
     run timeKeeper();
     run coordinator();
     run satellite1(satellite1_buffer);
-    run satellite2(satellite2_buffer);
-    run satellite3(satellite3_buffer);
+    // run satellite2(satellite2_buffer);
+    // run satellite3(satellite3_buffer);
     run groundStation();
 }
