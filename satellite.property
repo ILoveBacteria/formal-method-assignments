@@ -1,0 +1,16 @@
+property { 
+    define {
+        access_ground1 = satellite1.receiver == 0;
+        access_ground2 = satellite2.receiver == 0;
+        access_ground3 = satellite3.receiver == 0;
+
+        not_lower_zero_energy = satellite1.energy > 0 && satellite2.energy > 0 && satellite3.energy > 0;
+        no_interference = !((satellite1.receiver != -1 && satellite2.receiver != -1 && satellite3.receiver != -1));
+	}
+	
+    LTL {
+        Liveness: F (access_ground1) && F (access_ground2) && F (access_ground3);
+        Safety: G (not_lower_zero_energy) && G (no_interference);
+    }
+
+}
